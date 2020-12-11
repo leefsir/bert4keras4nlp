@@ -96,7 +96,6 @@ class BertGraph(BasisGraph):
 if __name__ == '__main__':
     params = {
         'model_code': 'thuc_news_bert',
-
         'train_data_path': CORPUS_ROOT_PATH + '/thuc_news/train.txt',
         'valid_data_path': CORPUS_ROOT_PATH + '/thuc_news/dev.txt',
         'test_data_path': CORPUS_ROOT_PATH + '/thuc_news/test.txt',
@@ -108,3 +107,9 @@ if __name__ == '__main__':
     }
     bertModel = BertGraph(params, Train=True)
     bertModel.train()
+else:
+    params = {
+        'model_code': 'thuc_news_bert',  # 此处与训练时code保持一致
+        'gpu_id': 1,
+    }
+    bertModel = BertGraph(params)
