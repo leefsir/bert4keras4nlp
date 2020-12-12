@@ -17,8 +17,9 @@ MODEL_ROOT_PATH = os.path.join(path_root,'models')
 BERT_MODEL_PATH = os.path.join(MODEL_ROOT_PATH,'chinese_L-12_H-768_A-12')
 
 
-
 # 训练语料路径
 CORPUS_ROOT_PATH = os.path.join(path_root,'corpus')
-PATH_EMBEDDING_RANDOM_CHAR = os.path.join(CORPUS_ROOT_PATH,'embeddings/term_char.txt')
+
+# 实体字典路径
+ENTITY_DICT = os.path.join(path_root,'/utils/dynamic_data_cache/entity.csv')
 

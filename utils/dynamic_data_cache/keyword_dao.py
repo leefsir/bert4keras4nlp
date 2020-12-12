@@ -1,6 +1,6 @@
 import pandas as pd
 
-from config.configs import ENTITY_DICT
+from configs.path_config import ENTITY_DICT
 from utils.dynamic_data_cache.trie_tree import get_trie_tree
 
 
