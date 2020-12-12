@@ -8,9 +8,20 @@ import json
 import os
 import random
 import re
+
 import jieba
 import pandas as pd
-import numpy as np
+
+
+def search(pattern, sequence):
+    """从sequence中寻找子串pattern
+    如果找到，返回第一个下标；否则返回-1。
+    """
+    n = len(pattern)
+    for i in range(len(sequence)):
+        if sequence[i:i + n] == pattern:
+            return i
+    return -1
 
 
 def data2csv(data_path, sep):
@@ -193,6 +204,7 @@ def split(train_data, sep=0.8):
                                                                      indexs[sep:]]
     # self.train_data ,self.valid_data = [self.train_data[i] for i in indexs[:sep]],[self.train_data[i] for i in indexs[sep:]]
     return train_data, valid_data
+
 
 if __name__ == '__main__':
     data_preprocess('E:/lwf_practice/Text_Classification/corpus/baidu_qa_2019/baike_qa_train.csv')

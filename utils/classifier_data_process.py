@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 
 # DataGenerator只是一种为了节约内存的数据方式
-class ClassifyDataGenerator(DataGenerator):
+class Data_Generator(DataGenerator):
     def __init__(self, data, l2i, tokenizer, batch_size, maxlen=128):
         super().__init__(data, batch_size=batch_size)
         self.l2i = l2i

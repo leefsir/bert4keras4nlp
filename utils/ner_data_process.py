@@ -8,6 +8,7 @@ from bert4keras.backend import K
 from bert4keras.snippets import DataGenerator, sequence_padding, ViterbiDecoder
 from tqdm import tqdm
 
+from utils.common_tools import search
 from utils.logger import logger
 
 
@@ -41,7 +42,7 @@ def data_process(filename):
     return flags, D
 
 
-class NerDataGenerator(DataGenerator):
+class Data_Generator(DataGenerator):
     """数据生成器
     """
 
@@ -244,12 +245,3 @@ class NamedEntityRecognizer(ViterbiDecoder):
         return ret
 
 
-def search(pattern, sequence):
-    """从sequence中寻找子串pattern
-    如果找到，返回第一个下标；否则返回-1。
-    """
-    n = len(pattern)
-    for i in range(len(sequence)):
-        if sequence[i:i + n] == pattern:
-            return i
-    return -1

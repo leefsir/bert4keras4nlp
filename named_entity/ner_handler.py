@@ -14,7 +14,7 @@ from basis_framework.basis_graph import BasisGraph
 from configs.path_config import CORPUS_ROOT_PATH
 from utils.common_tools import split
 from utils.logger import logger
-from utils.ner_data_process import data_process, NerDataGenerator, NamedEntityRecognizer, Evaluator
+from utils.ner_data_process import data_process, Data_Generator, NamedEntityRecognizer, Evaluator
 
 
 class NerHandler(BasisGraph):
@@ -49,7 +49,7 @@ class NerHandler(BasisGraph):
         self.index2label = dict(enumerate(labels))
         self.label2index = {j: i for i, j in self.index2label.items()}
         self.num_classes = len(labels) * 2 + 1
-        self.train_generator = NerDataGenerator(train_data, self.batch_size, self.tokenizer, self.label2index,
+        self.train_generator = Data_Generator(train_data, self.batch_size, self.tokenizer, self.label2index,
                                                 self.max_len)
         logger.info('data process done')
 

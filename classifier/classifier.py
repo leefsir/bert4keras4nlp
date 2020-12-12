@@ -15,7 +15,7 @@ from keras.optimizers import Adam
 
 from basis_framework.basis_graph import BasisGraph
 from configs.path_config import CORPUS_ROOT_PATH
-from utils.classifier_data_process import ClassifyDataGenerator, Evaluator
+from utils.classifier_data_process import Data_Generator, Evaluator
 from utils.common_tools import data2csv, data_preprocess, split
 
 
@@ -44,11 +44,11 @@ class BertGraph(BasisGraph):
             _, _, test_data = data_preprocess(self.valid_data_path)
         else:
             test_data = []
-        self.train_generator = ClassifyDataGenerator(train_data, self.label2index, self.tokenizer, self.batch_size,
+        self.train_generator = Data_Generator(train_data, self.label2index, self.tokenizer, self.batch_size,
                                                      self.max_len)
-        self.valid_generator = ClassifyDataGenerator(valid_data, self.label2index, self.tokenizer, self.batch_size,
+        self.valid_generator = Data_Generator(valid_data, self.label2index, self.tokenizer, self.batch_size,
                                                      self.max_len)
-        self.test_generator = ClassifyDataGenerator(test_data, self.label2index, self.tokenizer, self.batch_size,
+        self.test_generator = Data_Generator(test_data, self.label2index, self.tokenizer, self.batch_size,
                                                     self.max_len)
 
     def build_model(self):
