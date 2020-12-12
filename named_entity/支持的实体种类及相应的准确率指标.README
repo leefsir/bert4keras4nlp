@@ -1,0 +1,72 @@
+
+		AMT: precision:  99.95%; recall:  99.99%; F1:  99.97  10536    （deposit,transfer）
+         DEPOSIT_PERIOD: precision:  99.95%; recall:  99.98%; F1:  99.96  5616
+                 目: precision:  99.01%; recall: 100.00%; F1:  99.50  504
+               网站: precision:  91.03%; recall:  99.01%; F1:  94.86  881
+               语言: precision: 100.00%; recall:  87.50%; F1:  93.33  7
+           网络小说: precision:  90.31%; recall:  95.02%; F1:  92.61  867
+               人物: precision:  88.84%; recall:  93.47%; F1:  91.09  17122
+               Date: precision:  88.35%; recall:  91.57%; F1:  89.93  3973
+               歌曲: precision:  85.60%; recall:  93.12%; F1:  89.20  1708
+           影视作品: precision:  82.78%; recall:  89.44%; F1:  85.98  2526
+               Text: precision:  80.80%; recall:  91.06%; F1:  85.62  1323
+           音乐专辑: precision:  82.10%; recall:  88.52%; F1:  85.19  676
+             Number: precision:  79.40%; recall:  90.15%; F1:  84.44  369       (多少亩地，身高，体重等)
+             行政区: precision:  81.91%; recall:  83.70%; F1:  82.80  94
+               生物: precision:  79.48%; recall:  84.39%; F1:  81.86  653
+             图书作品: precision:  77.14%; recall:  85.04%; F1:  80.90  1356
+              出版社: precision:  77.63%; recall:  83.33%; F1:  80.38  1243
+             电视综艺: precision:  75.89%; recall:  82.52%; F1:  79.07  112
+               学校: precision:  71.29%; recall:  83.13%; F1:  76.76  850
+           历史人物: precision:  73.51%; recall:  77.34%; F1:  75.38  404
+               城市: precision:  77.59%; recall:  70.31%; F1:  73.77  58
+               国家: precision:  63.23%; recall:  83.13%; F1:  71.83  990
+               企业: precision:  65.00%; recall:  73.87%; F1:  69.15  1257
+               地点: precision:  62.30%; recall:  74.83%; F1:  67.99  1565
+               气候: precision:  66.67%; recall:  68.42%; F1:  67.53  39
+               书籍: precision:  75.70%; recall:  56.84%; F1:  64.93  214
+               景点: precision:  60.00%; recall:  53.85%; F1:  56.76  35
+               机构: precision:  51.43%; recall:  34.62%; F1:  41.38  210
+               作品: precision:  44.44%; recall:  25.00%; F1:  32.00  9
+           学科专业: precision:   0.00%; recall:   0.00%; F1:   0.00  1
+
+
+transdict = {'B-数字': 'B-Number', 'I-数字':'I-Number',
+             'B-日期': 'B-Date', 'I-日期':'I-Date',
+             'B-时间': 'B-PERIOD', 'I-时间':'I-PERIOD',
+             'B-金额':'B-AMT', 'I-金额': 'I-AMT',
+             'B-书籍':'B-Book','I-书籍':'I-Book',
+             'B-人物': 'B-Person', 'I-人物': 'I-Person',
+             'B-企业': 'B-Enterprise', 'I-企业': 'I-Enterprise',
+             'B-作品': 'B-Opus', 'I-作品': 'I-Opus',
+             'B-出版社': 'B-Press', 'I-出版社': 'I-Press',
+             'B-历史人物': 'B-HistoryPerson', 'I-历史人物': 'I-HistoryPerson',
+             'B-国家': 'B-Country', 'I-国家': 'I-Country',
+             'B-图书作品': 'B-BookOpus', 'I-图书作品': 'I-BookOpus',
+             'B-地点': 'B-Loc', 'I-地点': 'I-Loc',
+             'B-城市': 'B-City', 'I-城市': 'I-City',
+             'B-学校': 'B-School', 'I-学校': 'I-School',
+             'B-学科专业': 'B-Majors', 'I-学科专业': 'I-Majors',
+             'B-影视作品': 'B-Film', 'I-影视作品': 'I-Film',
+             'B-景点': 'B-Scenery', 'I-景点': 'I-Scenery',
+             'B-机构': 'B-Org', 'I-机构': 'I-Org',
+             'B-歌曲': 'B-Song', 'I-歌曲': 'I-Song',
+             'B-气候': 'B-Climate', 'I-气候': 'I-Climate',
+             'B-生物': 'B-Biology', 'I-生物': 'I-Biology',
+             'B-电视综艺': 'B-TVEntertainment', 'I-电视综艺': 'I-TVEntertainment',
+             'B-目': 'B-Catalogue', 'I-目': 'I-Catalogue',
+             'B-网站': 'B-Website', 'I-网站': 'I-Website',
+             'B-网络小说': 'B-NetworkNovels', 'I-网络小说': 'I-NetworkNovels',
+             'B-行政区': 'B-District', 'I-行政区':'I-District',
+             'B-语言': 'B-Language', 'I-语言': 'I-Language',
+             'B-音乐专辑': 'B-Album', 'I-音乐专辑': 'I-Album',
+             'B-基金': 'B-Fund', 'I-基金': 'I-fund_entity',
+             'B-保险': 'B-Insurance', 'I-保险': 'I-insurance_entity',
+             'B-理财': 'B-Financial', 'I-理财': 'I-financial_entity',
+             'B-人物': 'B-Person', 'I-人物': 'I-person_entity',}
+             'B-关系': 'B-Relation', 'I-关系': 'I-relation_entity',}
+             'B-金额': 'B-Money', 'I-金额': 'I-money_entity',}
+             'B-当前时间': 'B-Current_time', 'I-当前时间': 'I-current_time_entity',}
+             'B-过去时间': 'B-Past_time', 'I-过去时间': 'I-past_time_entity',}
+             'B-未来时间': 'B-Future_time', 'I-当前时间': 'I-future_time_entity',}
+             'B-账户': 'B-Account', 'I-账户': 'I-account_entity',}
