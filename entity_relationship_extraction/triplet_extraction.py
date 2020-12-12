@@ -1,7 +1,6 @@
 # _*_coding:utf-8_*_
 # author leewfeng
 # 2020/12/12 20:04
-import json
 import os
 
 from basis_framework.basis_graph import BasisGraph
@@ -12,10 +11,8 @@ rootPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 from bert4keras.backend import K, batch_gather
 from bert4keras.layers import LayerNormalization
-from bert4keras.tokenizers import Tokenizer
 from bert4keras.models import build_transformer_model
 from bert4keras.optimizers import Adam, extend_with_exponential_moving_average
-from bert4keras.snippets import open
 from keras.layers import Input, Dense, Lambda, Reshape
 from keras.models import Model
 import numpy as np
@@ -117,7 +114,6 @@ class ReextractBertHandler(BasisGraph):
         self.model.add_loss(subject_loss + object_loss)
         AdamEMA = extend_with_exponential_moving_average(Adam, name='AdamEMA')
         self.optimizer = AdamEMA(lr=1e-4)
-
 
     def compile_model(self):
         self.model.compile(optimizer=self.optimizer)
