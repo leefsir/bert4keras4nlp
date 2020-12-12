@@ -4,6 +4,8 @@
 import json
 import os
 
+from basis_framework.basis_graph import BasisGraph
+from utils.common_tools import load_json, save_json
 from utils.triplet_data_process import Data_Generator, data_process, Evaluator
 
 rootPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -22,45 +24,34 @@ model_root_path = rootPath + '/model/'
 corpus_root_path = rootPath + '/corpus/'
 
 
-class ReextractBertTrainHandler():
-    def __init__(self, params, Train=False):
-        self.bert_config_path = model_root_path + "chinese_L-12_H-768_A-12/bert_config.json"
-        self.bert_checkpoint_path = model_root_path + "chinese_L-12_H-768_A-12/bert_model.ckpt"
-        self.bert_vocab_path = model_root_path + "chinese_L-12_H-768_A-12/vocab.txt"
-        self.tokenizer = Tokenizer(self.bert_vocab_path, do_lower_case=True)
-        self.model_path = model_root_path + "best_model.weights"
-        self.params_path = model_root_path + 'params.json'
-        gpu_id = params.get("gpu_id", None)
-        self._set_gpu_id(gpu_id)  # 设置训练的GPU_ID
-        self.memory_fraction = params.get('memory_fraction')
-        if Train:
-            self.train_data_file_path = params.get('train_data_path')
-            self.valid_data_file_path = params.get('valid_data_path')
-            self.maxlen = params.get('maxlen', 128)
-            self.batch_size = params.get('batch_size', 32)
-            self.epoch = params.get('epoch')
-            self.data_process()
-        else:
-            load_params = json.load(open(self.params_path, encoding='utf-8'))
-            self.maxlen = load_params.get('maxlen')
-            self.num_classes = load_params.get('num_classes')
-            self.p2s_dict = load_params.get('p2s_dict')
-            self.i2p_dict = load_params.get('i2p_dict')
-            self.p2o_dict = load_params.get('p2o_dict')
-        self.build_model()
-        if not Train:
-            self.load_model()
+class ReextractBertHandler(BasisGraph):
+    def __init__(self, params={}, Train=False):
+        if not params.get('model_code'):
+            params['model_code'] = 'triplet_extraction'
+        super().__init__(params, Train)
 
-    def _set_gpu_id(self, gpu_id):
-        if gpu_id:
-            os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+    def load_params(self):
+        load_params = load_json(self.params_path)
+        self.max_len = load_params.get('max_len')
+        self.num_classes = load_params.get('num_classes')
+        self.p2s_dict = load_params.get('p2s_dict')
+        self.i2p_dict = load_params.get('i2p_dict')
+        self.p2o_dict = load_params.get('p2o_dict')
+
+    def save_params(self):
+        self.params['num_classes'] = self.num_classes
+        self.params['p2s_dict'] = self.p2s_dict
+        self.params['i2p_dict'] = self.i2p_dict
+        self.params['p2o_dict'] = self.p2o_dict
+        self.params['max_len'] = self.max_len
+        save_json(jsons=self.params, json_path=self.params_path)
 
     def data_process(self):
-        self.train_data, self.valid_data, self.p2s_dict, self.p2o_dict, self.i2p_dict, self.p2i_dict = data_process(
-            self.train_data_file_path, self.valid_data_file_path, self.maxlen, self.params_path)
+        train_data, self.valid_data, self.p2s_dict, self.p2o_dict, self.i2p_dict, self.p2i_dict = data_process(
+            self.train_data_path, self.valid_data_path, self.max_len, self.params_path)
         self.num_classes = len(self.i2p_dict)
-        self.train_generator = Data_Generator(self.train_data, self.batch_size, self.tokenizer, self.p2i_dict,
-                                              self.maxlen)
+        self.train_generator = Data_Generator(train_data, self.batch_size, self.tokenizer, self.p2i_dict,
+                                              self.max_len)
 
     def extrac_subject(self, inputs):
         """根据subject_ids从output中取出subject的向量表征
@@ -112,8 +103,9 @@ class ReextractBertTrainHandler():
         object_preds = Reshape((-1, self.num_classes, 2))(output)
         self.object_model = Model(bert.model.inputs + [subject_ids], object_preds)
         # 训练模型
-        self.train_model = Model(bert.model.inputs + [subject_labels, subject_ids, object_labels],
-                                 [subject_preds, object_preds])
+        self.model = Model(bert.model.inputs + [subject_labels, subject_ids, object_labels],
+                           [subject_preds, object_preds])
+
         mask = bert.model.get_layer('Embedding-Token').output_mask
         mask = K.cast(mask, K.floatx())
         subject_loss = K.binary_crossentropy(subject_labels, subject_preds)
@@ -122,21 +114,21 @@ class ReextractBertTrainHandler():
         object_loss = K.binary_crossentropy(object_labels, object_preds)
         object_loss = K.sum(K.mean(object_loss, 3), 2)
         object_loss = K.sum(object_loss * mask) / K.sum(mask)
-        self.train_model.add_loss(subject_loss + object_loss)
+        self.model.add_loss(subject_loss + object_loss)
         AdamEMA = extend_with_exponential_moving_average(Adam, name='AdamEMA')
         self.optimizer = AdamEMA(lr=1e-4)
-        self.train_model.compile(optimizer=self.optimizer)
 
-    def load_model(self):
-        self.train_model.load_weights(self.model_path)
+
+    def compile_model(self):
+        self.model.compile(optimizer=self.optimizer)
 
     def predict(self, text):
         """
         抽取输入text所包含的三元组
         text：str(<离开>是由张宇谱曲，演唱)
         """
-        tokens = self.tokenizer.tokenize(text, max_length=self.maxlen)
-        token_ids, segment_ids = self.tokenizer.encode(text, max_length=self.maxlen)
+        tokens = self.tokenizer.tokenize(text, max_length=self.max_len)
+        token_ids, segment_ids = self.tokenizer.encode(text, max_length=self.max_len)
         # 抽取subject
         subject_preds = self.subject_model.predict([[token_ids], [segment_ids]])
         start = np.where(subject_preds[0, :, 0] > 0.6)[0]
@@ -177,10 +169,26 @@ class ReextractBertTrainHandler():
             return []
 
     def train(self):
-        evaluator = Evaluator(self.train_model, self.model_path, self.tokenizer, self.predict, self.optimizer,
+        evaluator = Evaluator(self.model, self.model_path, self.tokenizer, self.predict, self.optimizer,
                               self.valid_data)
 
-        self.train_model.fit_generator(self.train_generator.forfit(),
-                                       steps_per_epoch=len(self.train_generator),
-                                       epochs=self.epoch,
-                                       callbacks=[evaluator])
+        self.model.fit_generator(self.train_generator.forfit(),
+                                 steps_per_epoch=len(self.train_generator),
+                                 epochs=self.epoch,
+                                 callbacks=[evaluator])
+
+
+if __name__ == '__main__':
+    params = {
+        "max_len": 128,
+        "batch_size": 32,
+        "epoch": 1,
+        "train_data_path": rootPath + "/data/train_data.json",
+        "dev_data_path": rootPath + "/data/valid_data.json",
+    }
+
+    model = ReextractBertHandler(params, Train=True)
+
+    model.train()
+    text = "马志舟，1907年出生，陕西三原人，汉族，中国共产党，任红四团第一连连长，1933年逝世"
+    print(model.predict(text))
