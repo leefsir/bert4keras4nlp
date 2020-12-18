@@ -32,16 +32,18 @@ class BertGraph(BasisGraph):
         """
         if '.csv' not in self.train_data_path:
             self.train_data_path = data2csv(self.train_data_path, sep)
-        self.index2label, self.label2index, train_data = data_preprocess(self.train_data_path)
+        self.index2label, self.label2index, self.labels, train_data = data_preprocess(self.train_data_path)
         self.num_classes = len(self.index2label)
         if self.valid_data_path:
             if '.csv' not in self.valid_data_path:
                 self.valid_data_path = data2csv(self.valid_data_path, sep)
-            _, _, valid_data = data_preprocess(self.valid_data_path)
+            _, _, _, valid_data = data_preprocess(self.valid_data_path)
         else:
             train_data, valid_data = split(train_data, self.split)
         if self.test_data_path:
-            _, _, test_data = data_preprocess(self.valid_data_path)
+            if '.csv' not in self.test_data_path:
+                self.test_data_path = data2csv(self.test_data_path, sep)
+            _, _, _, test_data = data_preprocess(self.test_data_path)
         else:
             test_data = []
         self.train_generator = Data_Generator(train_data, self.label2index, self.tokenizer, self.batch_size,
@@ -102,7 +104,7 @@ if __name__ == '__main__':
         'batch_size': 128,
         'max_len': 30,
         'epoch': 10,
-        'lr': 1e-5,
+        'learning_rate': 1e-5,
         'gpu_id': 1,
     }
     bertModel = BertGraph(params, Train=True)
