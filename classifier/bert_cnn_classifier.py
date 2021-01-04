@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # author： liwfeng
-# datetime： 2020/12/1 15:13 
+# datetime： 2020/12/1 15:13
 # ide： PyCharm
 
 from __future__ import print_function, division
@@ -9,7 +9,7 @@ from __future__ import print_function, division
 import numpy as np
 from bert4keras.models import build_transformer_model
 from bert4keras.optimizers import extend_with_piecewise_linear_lr
-from keras.layers import Dense, Lambda
+from keras.layers import Dense, Dropout, Flatten, MaxPooling1D, concatenate, Conv1D
 from keras.models import Model
 from keras.optimizers import Adam
 
@@ -23,6 +23,8 @@ class BertGraph(BasisGraph):
     def __init__(self, params={}, Train=False):
         if not params.get('model_code'):
             params['model_code'] = 'classifier'
+        self.filters = params.get('filters', [3, 4, 5])  # 卷积核大小
+        self.filters_num = params.get('filters_num', 300)  # 核数
         super().__init__(params, Train)
 
     def data_process(self, sep='\t'):
@@ -32,16 +34,18 @@ class BertGraph(BasisGraph):
         """
         if '.csv' not in self.train_data_path:
             self.train_data_path = data2csv(self.train_data_path, sep)
-        self.index2label, self.label2index, train_data = data_preprocess(self.train_data_path)
+        self.index2label, self.label2index, self.labels, train_data = data_preprocess(self.train_data_path)
         self.num_classes = len(self.index2label)
         if self.valid_data_path:
             if '.csv' not in self.valid_data_path:
                 self.valid_data_path = data2csv(self.valid_data_path, sep)
-            _, _, valid_data = data_preprocess(self.valid_data_path)
+            _, _, _, valid_data = data_preprocess(self.valid_data_path)
         else:
             train_data, valid_data = split(train_data, self.split)
         if self.test_data_path:
-            _, _, test_data = data_preprocess(self.valid_data_path)
+            if '.csv' not in self.test_data_path:
+                self.test_data_path = data2csv(self.test_data_path, sep)
+            _, _, _, test_data = data_preprocess(self.test_data_path)
         else:
             test_data = []
         self.train_generator = Data_Generator(train_data, self.label2index, self.tokenizer, self.batch_size,
@@ -57,9 +61,21 @@ class BertGraph(BasisGraph):
             checkpoint_path=self.bert_checkpoint_path,
             return_keras_model=False,
         )
-        output = Lambda(lambda x: x[:, 0], name='CLS-token')(bert.model.output)  # 取出[cls]层对应的向量来做分类
-        output = Dense(self.num_classes, activation=self.activation, kernel_initializer=bert.initializer)(
-            output)  # 全连接层激活函数分类
+        print(bert.model.output.shape)
+        # output = Lambda(lambda x: x[:, 0], name='CLS-token')(bert.model.output)  # 取出[cls]层对应的向量来做分类
+        # output = Dense(self.num_classes, activation=self.activation, kernel_initializer=bert.initializer)(
+        #     output)  # 全连接层激活函数分类
+        conv_pools = []
+        # 词窗大小分别为3,4,5
+        for filter in self.filters:
+            cnn = Conv1D(self.filters_num, filter, padding='same', strides=1, activation='relu')(bert.model.output)
+            cnn = MaxPooling1D(pool_size=self.max_len - filter + 1)(cnn)
+            conv_pools.append(cnn)
+        # 合并三个模型的输出向量
+        cnn = concatenate(conv_pools, axis=-1)
+        flat = Flatten()(cnn)
+        drop = Dropout(self.dropout)(flat)
+        output = Dense(self.num_classes, activation=self.activation)(drop)
         self.model = Model(bert.model.input, output)
         print(self.model.summary(150))
 
@@ -102,7 +118,7 @@ if __name__ == '__main__':
         'batch_size': 128,
         'max_len': 30,
         'epoch': 10,
-        'lr': 1e-5,
+        'learning_rate': 1e-4,
         'gpu_id': 1,
     }
     bertModel = BertGraph(params, Train=True)

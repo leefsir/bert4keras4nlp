@@ -181,18 +181,18 @@ def token_process(vocab_path):
     return token_dict
 
 
-def data_preprocess(data_path, label='label'):
+def data_preprocess(data_path, label='label',usecols=['label','content']):
     """
     处理数据返回类别标签转换字典
     :param data_path:
     :return:
     """
-    df = pd.read_csv(data_path).dropna()
-    label_unique = df[label].unique()
+    df = pd.read_csv(data_path,usecols=usecols).dropna()
+    label_unique = df[label].unique().tolist()
     data = df.values.tolist()
     i2l = {i: str(v) for i, v in enumerate(label_unique)}
     l2i = {str(v): i for i, v in enumerate(label_unique)}
-    return i2l, l2i, data
+    return i2l, l2i,label_unique, data
 
 
 def split(train_data, sep=0.8):
