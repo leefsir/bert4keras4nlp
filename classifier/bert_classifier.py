@@ -22,7 +22,7 @@ from utils.common_tools import data2csv, data_preprocess, split
 class BertGraph(BasisGraph):
     def __init__(self, params={}, Train=False):
         if not params.get('model_code'):
-            params['model_code'] = 'classifier'
+            params['model_code'] = 'bert_classifier'
         super().__init__(params, Train)
 
     def data_process(self, sep='\t'):

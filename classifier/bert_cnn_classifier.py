@@ -22,7 +22,7 @@ from utils.common_tools import data2csv, data_preprocess, split
 class BertGraph(BasisGraph):
     def __init__(self, params={}, Train=False):
         if not params.get('model_code'):
-            params['model_code'] = 'classifier'
+            params['model_code'] = 'bertcnn_classifier'
         self.filters = params.get('filters', [3, 4, 5])  # 卷积核大小
         self.filters_num = params.get('filters_num', 300)  # 核数
         super().__init__(params, Train)

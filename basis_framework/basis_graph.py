@@ -6,23 +6,23 @@
 import os
 
 from bert4keras.tokenizers import Tokenizer
-from config.configs import BERT_DIR, MODEL_DIR
-from utils.tools import load_json, save_json
+from configs.path_config import BERT_MODEL_PATH, MODEL_ROOT_PATH
+from utils.common_tools import load_json, save_json
 
 
 class BasisGraph():
     def __init__(self, params={}, Train=False):
-        self.bert_config_path = os.path.join(BERT_DIR + "/bert_config.json")
-        self.bert_checkpoint_path = os.path.join(BERT_DIR + "/bert_model.ckpt")
-        self.bert_vocab_path = os.path.join(BERT_DIR + "/vocab.txt")
+        self.bert_config_path = os.path.join(BERT_MODEL_PATH + "/bert_config.json")
+        self.bert_checkpoint_path = os.path.join(BERT_MODEL_PATH + "/bert_model.ckpt")
+        self.bert_vocab_path = os.path.join(BERT_MODEL_PATH + "/vocab.txt")
         self.tokenizer = Tokenizer(self.bert_vocab_path)
         self.model_code = params.get('model_code')
         if not self.model_code: raise Exception("No model code!,params must have a 'model_code'")
-        self.model_dir = os.path.join(MODEL_DIR, self.model_code)
-        if not os.path.exists(self.model_dir):os.makedirs(self.model_dir, exist_ok=True)
-        self.params_path = os.path.join(self.model_dir, 'params.json')
-        self.model_path = os.path.join(self.model_dir, 'best_model.weights')
-        self.tensorboard_path = os.path.join(self.model_dir, 'logs')
+        self.MODEL_ROOT_PATH = os.path.join(MODEL_ROOT_PATH, self.model_code)
+        if not os.path.exists(self.MODEL_ROOT_PATH):os.makedirs(self.MODEL_ROOT_PATH, exist_ok=True)
+        self.params_path = os.path.join(self.MODEL_ROOT_PATH, 'params.json')
+        self.model_path = os.path.join(self.MODEL_ROOT_PATH, 'best_model.weights')
+        self.tensorboard_path = os.path.join(self.MODEL_ROOT_PATH, 'logs')
         self.max_len = params.get('max_len', 128)
         self.batch_size = params.get('batch_size', 32)
         self.patience = params.get('patience', 3)
@@ -77,12 +77,6 @@ class BasisGraph():
         """
         raise NotImplementedError
     def build_model(self):
-        """
-        模型框架搭建
-        :return:
-        """
-        raise NotImplementedError
-    def model_create(self):
         """
         模型框架搭建
         :return:
