@@ -18,20 +18,12 @@ class ExtractFeature(BasisGraph):
         super().__init__(params, Train)
 
     def save_params(self):
-        self.params['num_classes'] = self.num_classes
-        self.params['labels'] = self.labels
-        self.params['index2label'] = self.index2label
-        self.params['label2index'] = self.label2index
         self.params['max_len'] = self.max_len
         save_json(jsons=self.params, json_path=self.params_path)
 
     def load_params(self):
         load_params = load_json(self.params_path)
         self.max_len = load_params.get('max_len')
-        self.labels = load_params.get('labels')
-        self.num_classes = load_params.get('num_classes')
-        self.label2index = load_params.get('label2index')
-        self.index2label = load_params.get('index2label')
 
     def _set_gpu_id(self):
         """指定使用的GPU显卡id"""

@@ -15,7 +15,7 @@ LOG_NAME = "classification.log"
 # 模型文件路径
 MODEL_ROOT_PATH = os.path.join(path_root,'models')
 BERT_MODEL_PATH = os.path.join(MODEL_ROOT_PATH,'chinese_L-12_H-768_A-12')
-
+GPT2_MODEL_PATH =os.path.join(MODEL_ROOT_PATH,'gpt2_ml')
 
 # 训练语料路径
 CORPUS_ROOT_PATH = os.path.join(path_root,'corpus')
